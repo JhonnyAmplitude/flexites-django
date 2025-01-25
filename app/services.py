@@ -1,13 +1,14 @@
 from .models import Organization, CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
+from .serializers import RegistrationSerializer
 
 
-def register_user(data, serializer_class):
+def register_custom_user(request_data):
     """Регистрация пользователя"""
-    serializer = serializer_class(data=data)
-    serializer.is_valid(raise_exception=True)
-    return serializer.save()
+    custom_user = RegistrationSerializer(data=request_data)
+    custom_user.is_valid(raise_exception=True)
+    return custom_user.save()
 
 def authenticate_user(data, serializer_class):
     """

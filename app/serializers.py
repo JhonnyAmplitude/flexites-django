@@ -1,16 +1,10 @@
-import os
-import uuid
-from PIL import Image
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from rest_framework import serializers
 from .models import CustomUser, Organization
 from django.contrib.auth import authenticate
+from .utils import process_avatar
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    avatar = serializers.ImageField(required=False)
-
     class Meta:
         model = CustomUser
         fields = ['email', 'password', 'phone', 'avatar', 'first_name', 'last_name']
@@ -20,38 +14,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         }
 
 
-    def create(self, validated_data):
-        avatar = validated_data.pop('avatar', None)
-        user = CustomUser.objects.create_user(**validated_data)
-
-        if avatar:
-            self.process_avatar(user, avatar)
-
-        return user
-
-    def process_avatar(self, user, avatar):
-        # Генерируем уникальное имя файла
-        ext = avatar.name.split('.')[-1]
-        filename = f"{uuid.uuid4().hex}.{ext}"
-
-        # Открываем изображение
-        img = Image.open(avatar)
-
-        # Изменяем размер, сохраняя пропорции
-        img.thumbnail((200, 200))
-
-        # Сохраняем обработанное изображение
-        temp_file = ContentFile(b'')
-        img.save(temp_file, format=img.format)
-        temp_file.seek(0)
-
-        # Сохраняем файл
-        file_path = os.path.join('avatars', filename)
-        file_name = default_storage.save(file_path, temp_file)
-
-        # Обновляем поле avatar у пользователя
-        user.avatar = file_name
-        user.save()
+    def create(self, request_data):
+        avatar_data = request_data.pop('avatar', None)
+        avatar = process_avatar(avatar_data) if avatar_data else None
+        return CustomUser.objects.create_user(**request_data, avatar=avatar)
 
 
 class LoginSerializer(serializers.Serializer):

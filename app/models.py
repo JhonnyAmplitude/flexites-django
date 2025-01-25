@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator
 from django.db import models
+from .settings import AVATARS_PATH
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,7 +29,7 @@ class CustomUser(AbstractUser):
         ],
     )
     avatar = models.ImageField(
-        upload_to='avatars/',
+        upload_to=f'${AVATARS_PATH}/',
         blank=True,
         null=True,
     )
