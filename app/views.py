@@ -9,6 +9,8 @@ from .serializers import RegistrationSerializer, LoginSerializer, ProfileUpdateS
     OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
     OrganizationWithUsersSerializer
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema
+
 
 from .services import create_organization, register_user, authenticate_user, add_organizations_to_user, \
     get_all_organizations, get_user_profile, update_user_profile, get_users_and_organizations_by_email, \
@@ -16,14 +18,19 @@ from .services import create_organization, register_user, authenticate_user, add
 
 
 class RegistrationView(APIView):
-    """Регистрация"""
     def post(self, request, *args, **kwargs):
         user = register_user(request.data, RegistrationSerializer)
         return registration_successful_response(user)
 
 
 class LoginView(APIView):
-    """Логин"""
+    @extend_schema(
+        request=LoginSerializer,
+        responses={
+            200: LoginSerializer,
+            400: 'Некорректные данные для логина',
+        }
+    )
     def post(self, request, *args, **kwargs):
         tokens = authenticate_user(request.data, LoginSerializer)
         return login_successful_response(tokens)

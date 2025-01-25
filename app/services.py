@@ -4,14 +4,14 @@ from django.shortcuts import get_object_or_404
 
 
 def register_user(data, serializer_class):
-    """Регистрация пользователя через сериализатор."""
+    """Регистрация пользователя"""
     serializer = serializer_class(data=data)
     serializer.is_valid(raise_exception=True)
     return serializer.save()
 
 def authenticate_user(data, serializer_class):
     """
-    Аутентификация пользователя через сериализатор.
+    Аутентификация пользователя.
     Возвращает пользователя и токены.
     """
     serializer = serializer_class(data=data)
@@ -19,13 +19,12 @@ def authenticate_user(data, serializer_class):
     user = serializer.validated_data['user']
     refresh = RefreshToken.for_user(user)
     return {
-        "user": user,
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
 
 def create_organization(data, serializer_class):
-    """Создает организацию через сериализатор."""
+    """Создает организацию"""
     serializer = serializer_class(data=data)
     serializer.is_valid(raise_exception=True)
     return serializer.save()
