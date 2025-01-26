@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 
 from .models import CustomUser, Organization
-from .responses import organization_created_response
 from .serializers import CustomUserGetSerializer, LoginSerializer, \
     OrganizationSerializer, CustomUserSerializer, CustomUserPostOrganizationsSerializer, \
     OrganizationWithUsersSerializer
@@ -81,6 +80,6 @@ class OrganizationsWithUsersViewSet(viewsets.ModelViewSet):
 class OrganizationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        organization = create_organization(request.data, OrganizationSerializer)
-        return organization_created_response(organization)
+    def post(self, request):
+        organization = create_organization(request.data)
+        return Response(organization, status=status.HTTP_201_CREATED)
