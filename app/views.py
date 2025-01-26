@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view
 
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
     get_all_organizations, update_user_profile, \
-    get_organizations_for_user, get_all_organizations_with_users
+    get_user_by_id, get_all_organizations_with_users
 
 @api_view(['POST'])
 def register(request):
@@ -35,20 +35,20 @@ class CustomUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        custom_user = CustomUserGetSerializer(request.user)
-        return Response(custom_user.data, status=status.HTTP_200_OK)
+        serializer = CustomUserGetSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request):
         updated_custom_user = update_user_profile(request.user, request.data)
         return Response(updated_custom_user, status=status.HTTP_200_OK)
 
 
-class CustomUserWithOrganizationsById(APIView):
+class CustomUserByIdView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, _, user_id):
-        organizations = get_organizations_for_user(user_id)
-        serializer = OrganizationSerializer(organizations, many=True)
+        user = get_user_by_id(user_id)
+        serializer = CustomUserSerializer(user)
         return Response(serializer.data)
 
     def post(self, request, user_id):
@@ -66,7 +66,7 @@ class CustomUserWithOrganizationsById(APIView):
         return Response({"error": result["message"]}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomUsersWithOrganizationsViewSet(viewsets.ModelViewSet):
+class CustomUsersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all().prefetch_related('organizations')
     serializer_class = CustomUserSerializer

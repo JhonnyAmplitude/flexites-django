@@ -5,14 +5,14 @@ from .serializers import RegistrationSerializer, LoginSerializer, CustomUserPatc
 
 
 def register_custom_user(request_data) -> CustomUser:
-    custom_user = RegistrationSerializer(data=request_data)
-    custom_user.is_valid(raise_exception=True)
-    return custom_user.save()
+    serializer = RegistrationSerializer(data=request_data)
+    serializer.is_valid(raise_exception=True)
+    return serializer.save()
 
 def authenticate_user(request_data):
-    custom_user = LoginSerializer(data=request_data)
-    custom_user.is_valid(raise_exception=True)
-    refresh = RefreshToken.for_user(custom_user.validated_data)
+    serializer = LoginSerializer(data=request_data)
+    serializer.is_valid(raise_exception=True)
+    refresh = RefreshToken.for_user(serializer.validated_data)
 
     return {
         "refresh": str(refresh),
@@ -20,14 +20,14 @@ def authenticate_user(request_data):
     }
 
 def update_user_profile(custom_user, request_data):
-    updated_custom_user = CustomUserPatchSerializer(custom_user, data=request_data, partial=True)
-    updated_custom_user.is_valid(raise_exception=True)
-    updated_custom_user.save()
-    return updated_custom_user.data
+    serializer = CustomUserPatchSerializer(custom_user, data=request_data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return serializer.data
 
-def get_organizations_for_user(user_id):
+def get_user_by_id(user_id):
     user = get_object_or_404(CustomUser, id=user_id)
-    return user.organizations.all()
+    return user
 
 def create_organization(data, serializer_class):
     serializer = serializer_class(data=data)
