@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-7-(8*cc_1rkll5*km$peq$j=k(xd%-79mx-xtai4$oe3%+yk@1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['flexites-django.onrender.com']
 
 
 # Application definition
