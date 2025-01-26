@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework import serializers
 
 from .models import CustomUser, Organization
-from .serializers import CustomUserGetSerializer, LoginSerializer, \
+from .serializers import CustomUserGetSerializer, LoginSerializer, RegistrationSerializer, CustomUserPatchSerializer, \
     OrganizationSerializer, CustomUserSerializer, CustomUserPostOrganizationsSerializer, \
     OrganizationWithUsersSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +15,10 @@ from .services import create_organization, register_custom_user, authenticate_us
     update_user_profile, \
     get_user_by_id
 
+@extend_schema(request=RegistrationSerializer, responses={
+    status.HTTP_201_CREATED: {'message': 'string', 'user_id': "integer"},
+    status.HTTP_400_BAD_REQUEST: serializers.ValidationError
+})
 @api_view(['POST'])
 def register(request):
     custom_user = register_custom_user(request.data)
@@ -37,6 +42,7 @@ class CustomUserView(APIView):
         serializer = CustomUserGetSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=CustomUserPatchSerializer)
     def patch(self, request):
         updated_custom_user = update_user_profile(request.user, request.data)
         return Response(updated_custom_user, status=status.HTTP_200_OK)
@@ -50,6 +56,7 @@ class CustomUserByIdView(APIView):
         serializer = CustomUserSerializer(user)
         return Response(serializer.data)
 
+    @extend_schema(request=CustomUserPostOrganizationsSerializer)
     def post(self, request, user_id):
         serializer = CustomUserPostOrganizationsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -80,6 +87,7 @@ class OrganizationsWithUsersViewSet(viewsets.ModelViewSet):
 class OrganizationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=OrganizationSerializer)
     def post(self, request):
         organization = create_organization(request.data)
         return Response(organization, status=status.HTTP_201_CREATED)
