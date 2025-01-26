@@ -1,24 +1,31 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from rest_framework import serializers
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
+from drf_spectacular.utils import extend_schema
 
 from .models import CustomUser, Organization
-from .serializers import CustomUserGetSerializer, LoginSerializer, RegistrationSerializer, CustomUserPatchSerializer, \
-    OrganizationSerializer, CustomUserSerializer, CustomUserPostOrganizationsSerializer, \
-    OrganizationWithUsersSerializer
-from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.utils import extend_schema
-from rest_framework.decorators import api_view
+from .serializers import (
+    CustomUserGetSerializer,
+    LoginSerializer,
+    RegistrationSerializer,
+    CustomUserPatchSerializer,
+    OrganizationSerializer,
+    CustomUserSerializer,
+    CustomUserPostOrganizationsSerializer,
+    OrganizationWithUsersSerializer,
+)
+from .services import (
+    create_organization,
+    register_custom_user,
+    authenticate_user,
+    add_organizations_to_user,
+    update_user_profile,
+    get_user_by_id,
+)
 
-from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
-    update_user_profile, \
-    get_user_by_id
-
-@extend_schema(request=RegistrationSerializer, responses={
-    status.HTTP_201_CREATED: {'message': 'string', 'user_id': "integer"},
-    status.HTTP_400_BAD_REQUEST: serializers.ValidationError
-})
+@extend_schema(request=RegistrationSerializer)
 @api_view(['POST'])
 def register(request):
     custom_user = register_custom_user(request.data)

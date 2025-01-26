@@ -13,7 +13,6 @@ def authenticate_user(request_data):
     serializer = LoginSerializer(data=request_data)
     serializer.is_valid(raise_exception=True)
     refresh = RefreshToken.for_user(serializer.validated_data)
-
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),

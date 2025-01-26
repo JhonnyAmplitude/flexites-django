@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import (
-    OrganizationCreateView,
     register,
     login,
     CustomUserView,
@@ -8,6 +7,7 @@ from .views import (
     CustomUsersViewSet,
     OrganizationsViewSet,
     OrganizationsWithUsersViewSet,
+    OrganizationCreateView,
 )
 
 
