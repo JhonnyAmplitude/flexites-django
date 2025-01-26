@@ -4,8 +4,8 @@ from rest_framework import status, viewsets
 
 from .models import CustomUser
 from .responses import organization_created_response
-from .serializers import CustomUserGetSerializer, LoginSerializer, OrganizationCreateSerializer, \
-    OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
+from .serializers import CustomUserGetSerializer, LoginSerializer, \
+    OrganizationSerializer, CustomUserSerializer, CustomUserPostOrganizationsSerializer, \
     OrganizationWithUsersSerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
@@ -53,7 +53,7 @@ class CustomUserByIdView(APIView):
 
     def post(self, request, user_id):
         # Валидируем данные
-        serializer = AddOrganizationSerializer(data=request.data)
+        serializer = CustomUserPostOrganizationsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         # Добавляем организации через сервис
@@ -76,7 +76,7 @@ class OrganizationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        organization = create_organization(request.data, OrganizationCreateSerializer)
+        organization = create_organization(request.data, OrganizationSerializer)
         return organization_created_response(organization)
 
 

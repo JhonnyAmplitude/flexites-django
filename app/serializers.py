@@ -40,14 +40,33 @@ class LoginSerializer(serializers.Serializer):
         return custom_user
 
 
-class OrganizationCreateSerializer(serializers.ModelSerializer):
+class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = ['id', 'name', 'short_description']
 
 
+class CustomUserSerializer(serializers.ModelSerializer):
+    organizations = OrganizationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'password', 'first_name', 'last_name', 'phone', 'avatar', 'organizations']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, data):
+        custom_user = CustomUser.objects.create_user(**data)
+        return custom_user
+
+    def update(self, custom_user, data):
+        if 'password' in data:
+            password = data.pop('password')
+            custom_user.set_password(password)
+        return super().update(custom_user, data)
+
+
 class CustomUserGetSerializer(serializers.ModelSerializer):
-    organizations = OrganizationCreateSerializer(many=True)
+    organizations = OrganizationSerializer(many=True)
 
     class Meta:
         model = CustomUser
@@ -69,40 +88,16 @@ class CustomUserPatchSerializer(serializers.ModelSerializer):
 
         return super().update(custom_user, data)
 
-class OrganizationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Organization
-        fields = ['id', 'name', 'short_description']
-
-class AddOrganizationSerializer(serializers.Serializer):
+class CustomUserPostOrganizationsSerializer(serializers.Serializer):
     organization_ids = serializers.ListField(child=serializers.IntegerField())
 
-    def validate_organization_ids(self, value):
-        for org_id in value:
+    def validate_organization_ids(self, data):
+        for org_id in data:
             try:
                 Organization.objects.get(id=org_id)
             except Organization.DoesNotExist:
                 raise serializers.ValidationError(f"Организация с ID {org_id} не существует")
-        return value
-
-
-class CustomUserSerializer(serializers.ModelSerializer):
-    organizations = OrganizationSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'email', 'first_name', 'last_name', 'phone', 'avatar', 'organizations', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = CustomUser.objects.create_user(**validated_data)
-        return user
-
-    def update(self, instance, validated_data):
-        if 'password' in validated_data:
-            password = validated_data.pop('password')
-            instance.set_password(password)
-        return super().update(instance, validated_data)
+        return data
 
 
 class OrganizationWithUsersSerializer(serializers.ModelSerializer):
