@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view
 
 
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
-    get_all_organizations, update_user_profile, get_users_and_organizations_by_email, \
+    get_all_organizations, update_user_profile, \
     get_organizations_for_user, get_all_organizations_with_users
 
 @api_view(['POST'])
@@ -43,6 +43,12 @@ class CustomUserView(APIView):
     def patch(self, request):
         updated_custom_user = update_user_profile(request.user, request.data)
         return Response(updated_custom_user, status=status.HTTP_200_OK)
+
+
+class CustomUsersWithOrganizationsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all().prefetch_related('organizations')
+    serializer_class = CustomUserSerializer
 
 
 class OrganizationCreateView(APIView):
@@ -83,19 +89,6 @@ class OrganizationListView(APIView):
 
         # Возвращаем успешный ответ
         return Response({"message": serializer.data}, status=status.HTTP_200_OK)
-
-class GetUsersAndTheirOrganizationsViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all().prefetch_related('organizations')
-    serializer_class = CustomUserSerializer
-
-    def get(self, request, email):
-        """Получение пользователя и его организаций по email."""
-        user, organizations = get_users_and_organizations_by_email(email)
-
-        # Сериализуем организации
-        serializer = OrganizationSerializer(organizations, many=True)
-
-        return Response(serializer.data)
 
 
 class UserOrganizationsView(APIView):

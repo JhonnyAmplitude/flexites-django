@@ -1,14 +1,15 @@
 from django.urls import path
 from .views import (
-    CustomUserView,
     OrganizationCreateView,
     OrganizationListView,
     AddOrganizationsToUserView,
     UserOrganizationsView,
     GetAllOrganizationsWithUsersView,
-    GetUsersAndTheirOrganizationsViewSet,
+
     register,
-    login
+    login,
+    CustomUserView,
+    CustomUsersWithOrganizationsViewSet,
 )
 
 
@@ -17,7 +18,7 @@ urlpatterns = [
     path('login/', login, name='user-login'),
 
     path('users/me/', CustomUserView.as_view(), name='profile-update'),
-    path('users/', GetUsersAndTheirOrganizationsViewSet.as_view({'get': 'list'}), name='users-list'),
+    path('users/', CustomUsersWithOrganizationsViewSet.as_view({'get': 'list'}), name='users-list'),
     path('users/<int:user_id>/add_organizations/', AddOrganizationsToUserView.as_view()),
     path('users/<int:user_id>/organizations/', UserOrganizationsView.as_view()),
 

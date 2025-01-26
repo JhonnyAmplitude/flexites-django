@@ -51,11 +51,6 @@ def add_organizations_to_user(user_id, organization_ids):
 def get_all_organizations():
     return Organization.objects.all()
 
-def get_users_and_organizations_by_email(email):
-    user = get_object_or_404(CustomUser, email=email)
-    organizations = user.organizations.all()
-    return user, organizations
-
 def get_organizations_for_user(user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return user.organizations.all()
