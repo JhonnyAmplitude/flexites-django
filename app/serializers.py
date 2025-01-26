@@ -65,6 +65,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return super().update(custom_user, data)
 
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        # Изменяем поле avatar, чтобы возвращать только путь (без base_url)
+        if instance.avatar:
+            representation['avatar'] = instance.avatar.url  # Только относительный путь
+        else:
+            representation['avatar'] = None
+
+        return representation
+
+
 class CustomUserGetSerializer(serializers.ModelSerializer):
     organizations = OrganizationSerializer(many=True)
 
@@ -81,12 +93,12 @@ class CustomUserPatchSerializer(serializers.ModelSerializer):
             'email': {'read_only': True},  # Email нельзя редактировать
         }
 
-    def update(self, custom_user, data):
+    def update(self, instance, data):
         if "avatar" in data:
             avatar = data["avatar"]
             data["avatar"] = process_avatar(avatar) if avatar else None
 
-        return super().update(custom_user, data)
+        return super().update(instance, data)
 
 class CustomUserPostOrganizationsSerializer(serializers.Serializer):
     organization_ids = serializers.ListField(child=serializers.IntegerField())
@@ -106,11 +118,10 @@ class CustomUserPostOrganizationsSerializer(serializers.Serializer):
         return organization_ids
 
 
-class CustomUserWithoutOrganizationsSerializer(serializers.ModelSerializer):
+class CustomUserWithoutOrganizationsSerializer(CustomUserSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'phone', 'first_name', 'last_name', 'avatar']
-
 
 class OrganizationWithUsersSerializer(serializers.ModelSerializer):
     users = CustomUserWithoutOrganizationsSerializer(many=True, read_only=True)
