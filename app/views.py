@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view
 
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
     update_user_profile, \
-    get_user_by_id, get_all_organizations_with_users
+    get_user_by_id
 
 @api_view(['POST'])
 def register(request):
@@ -73,21 +73,14 @@ class OrganizationsViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
+class OrganizationsWithUsersViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Organization.objects.all().prefetch_related("users")
+    serializer_class = OrganizationWithUsersSerializer
+
 class OrganizationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         organization = create_organization(request.data, OrganizationSerializer)
         return organization_created_response(organization)
-
-class GetAllOrganizationsWithUsersView(APIView):
-    """Получение всех организаций с прикрепленными пользователями."""
-
-    def get(self, request):
-        """Получение списка всех организаций с пользователями."""
-        organizations = get_all_organizations_with_users()
-
-        # Сериализуем организации с пользователями
-        serializer = OrganizationWithUsersSerializer(organizations, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)

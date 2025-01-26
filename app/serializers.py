@@ -105,14 +105,16 @@ class CustomUserPostOrganizationsSerializer(serializers.Serializer):
 
         return organization_ids
 
+
+class CustomUserWithoutOrganizationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'phone', 'first_name', 'last_name', 'avatar']
+
+
 class OrganizationWithUsersSerializer(serializers.ModelSerializer):
-    users = CustomUserSerializer(many=True, read_only=True)
+    users = CustomUserWithoutOrganizationsSerializer(many=True, read_only=True)
 
     class Meta:
         model = Organization
         fields = ['id', 'name', 'short_description', 'users']
-
-
-class CustomUserListSerializer(CustomUserSerializer):
-    class Meta(CustomUserSerializer.Meta):
-        fields = ['id', 'email', 'first_name', 'last_name', 'organizations']

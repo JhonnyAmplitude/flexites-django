@@ -29,11 +29,6 @@ def get_user_by_id(user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return user
 
-def create_organization(data, serializer_class):
-    serializer = serializer_class(data=data)
-    serializer.is_valid(raise_exception=True)
-    return serializer.save()
-
 def add_organizations_to_user(user_id, organization_ids):
     custom_user = get_object_or_404(CustomUser, id=user_id)
 
@@ -47,5 +42,7 @@ def add_organizations_to_user(user_id, organization_ids):
 
     return custom_user
 
-def get_all_organizations_with_users():
-    return Organization.objects.all().prefetch_related('users')
+def create_organization(data, serializer_class):
+    serializer = serializer_class(data=data)
+    serializer.is_valid(raise_exception=True)
+    return serializer.save()

@@ -1,14 +1,13 @@
 from django.urls import path
 from .views import (
     OrganizationCreateView,
-    GetAllOrganizationsWithUsersView,
-
     register,
     login,
     CustomUserView,
     CustomUserByIdView,
     CustomUsersViewSet,
-    OrganizationsViewSet
+    OrganizationsViewSet,
+    OrganizationsWithUsersViewSet,
 )
 
 
@@ -22,6 +21,6 @@ urlpatterns = [
     path('users/', CustomUsersViewSet.as_view({'get': 'list'})),
 
     path('organizations/', OrganizationsViewSet.as_view({'get': 'list'})),
+    path('organizations/with_users/', OrganizationsWithUsersViewSet.as_view({'get': 'list'})),
     path('organizations/create/', OrganizationCreateView.as_view()),
-    path('organizations/with_users/', GetAllOrganizationsWithUsersView.as_view()),
 ]
