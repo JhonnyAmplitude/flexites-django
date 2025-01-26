@@ -3,24 +3,28 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, viewsets
 
 from .models import CustomUser
-from .responses import organization_created_response, registration_successful_response, login_successful_response, \
+from .responses import organization_created_response, login_successful_response, \
     success_response, error_response
 from .serializers import RegistrationSerializer, LoginSerializer, ProfileUpdateSerializer, OrganizationCreateSerializer, \
     OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
     OrganizationWithUsersSerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
+from rest_framework.decorators import api_view
+
 
 
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
     get_all_organizations, get_user_profile, update_user_profile, get_users_and_organizations_by_email, \
     get_organizations_for_user, get_all_organizations_with_users
 
-
-class RegistrationView(APIView):
-    def post(self, request):
-        custom_user = register_custom_user(request.data)
-        return registration_successful_response(custom_user)
+@api_view(['POST'])
+def register(request):
+    custom_user = register_custom_user(request.data)
+    return Response({
+        'message': 'Пользователь успешно создан.',
+        'user_id': custom_user.id,
+    }, status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):

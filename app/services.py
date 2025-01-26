@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from .serializers import RegistrationSerializer
 
 
-def register_custom_user(request_data):
+def register_custom_user(request_data) -> CustomUser:
     """Регистрация пользователя"""
     custom_user = RegistrationSerializer(data=request_data)
     custom_user.is_valid(raise_exception=True)

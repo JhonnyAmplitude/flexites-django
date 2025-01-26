@@ -7,13 +7,13 @@ from .views import (
     AddOrganizationsToUserView,
     UserOrganizationsView,
     GetAllOrganizationsWithUsersView,
-    RegistrationView,
-    GetUsersAndTheirOrganizationsViewSet
+    GetUsersAndTheirOrganizationsViewSet,
+    register
 )
 
 
 urlpatterns = [
-    path('register/', RegistrationView.as_view(), name='user-register'),
+    path('register/', register, name='user-register'),
     path('login/', LoginView.as_view(), name='login'),
 
     path('organizations/', OrganizationListView.as_view(), name='organization-list'),

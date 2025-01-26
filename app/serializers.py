@@ -14,7 +14,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         }
 
 
-    def create(self, request_data):
+    def create(self, request_data) -> CustomUser:
         avatar_data = request_data.pop('avatar', None)
         avatar = process_avatar(avatar_data) if avatar_data else None
         return CustomUser.objects.create_user(**request_data, avatar=avatar)

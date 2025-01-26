@@ -1,17 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
 
-
-def registration_successful_response(user):
-    """Формирует успешный ответ при регистрации пользователя."""
-    return Response(
-        {
-            "message": "Пользователь успешно создан.",
-            "user_id": user.id,
-        },
-        status=status.HTTP_201_CREATED,
-    )
-
 def login_successful_response(tokens):
     """
     Формирует успешный ответ для логина.
