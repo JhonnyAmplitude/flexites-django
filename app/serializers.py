@@ -14,7 +14,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         }
 
 
-    def create(self, data) -> CustomUser:
+    def create(self, data):
         avatar_data = data.pop('avatar', None)
         avatar = process_avatar(avatar_data) if avatar_data else None
         return CustomUser.objects.create_user(**data, avatar=avatar)
@@ -81,7 +81,7 @@ class CustomUserPatchSerializer(serializers.ModelSerializer):
             'email': {'read_only': True},  # Email нельзя редактировать
         }
 
-    def update(self, custom_user, data) -> CustomUser:
+    def update(self, custom_user, data):
         if "avatar" in data:
             avatar = data["avatar"]
             data["avatar"] = process_avatar(avatar) if avatar else None
@@ -91,14 +91,19 @@ class CustomUserPatchSerializer(serializers.ModelSerializer):
 class CustomUserPostOrganizationsSerializer(serializers.Serializer):
     organization_ids = serializers.ListField(child=serializers.IntegerField())
 
-    def validate_organization_ids(self, data):
-        for org_id in data:
-            try:
-                Organization.objects.get(id=org_id)
-            except Organization.DoesNotExist:
-                raise serializers.ValidationError(f"Организация с ID {org_id} не существует")
-        return data
+    def validate_organization_ids(self, organization_ids):
+        error = ''
 
+        for id in organization_ids:
+            try:
+                Organization.objects.get(id=id)
+            except Organization.DoesNotExist:
+                error += f", {str(id)}" if error else f"{str(id)}"
+
+        if error:
+            raise serializers.ValidationError(f'Организации с ID "{error}" не существуют')
+
+        return organization_ids
 
 class OrganizationWithUsersSerializer(serializers.ModelSerializer):
     users = CustomUserSerializer(many=True, read_only=True)

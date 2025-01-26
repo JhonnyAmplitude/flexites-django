@@ -1,10 +1,10 @@
 from .models import Organization, CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
-from .serializers import RegistrationSerializer, LoginSerializer, CustomUserPatchSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, CustomUserPatchSerializer, CustomUserPostOrganizationsSerializer
 
 
-def register_custom_user(request_data) -> CustomUser:
+def register_custom_user(request_data):
     serializer = RegistrationSerializer(data=request_data)
     serializer.is_valid(raise_exception=True)
     return serializer.save()
@@ -35,22 +35,17 @@ def create_organization(data, serializer_class):
     return serializer.save()
 
 def add_organizations_to_user(user_id, organization_ids):
-    # Получаем пользователя или выбрасываем 404
-    user = get_object_or_404(CustomUser, id=user_id)
+    custom_user = get_object_or_404(CustomUser, id=user_id)
 
     # Фильтруем организации по переданным ID
     organizations = Organization.objects.filter(id__in=organization_ids)
-    existing_orgs = user.organizations.all()
+    existing_orgs = custom_user.organizations.all()
 
     # Определяем новые организации
     new_orgs = [org for org in organizations if org not in existing_orgs]
+    custom_user.organizations.add(*new_orgs)
 
-    if not new_orgs:
-        return {"success": False, "message": "Все указанные организации уже добавлены к этому пользователю"}
-
-    # Добавляем новые организации
-    user.organizations.add(*new_orgs)
-    return {"success": True, "message": "Организации успешно добавлены"}
+    return custom_user
 
 def get_all_organizations():
     return Organization.objects.all()

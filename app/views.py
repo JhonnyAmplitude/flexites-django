@@ -52,18 +52,14 @@ class CustomUserByIdView(APIView):
         return Response(serializer.data)
 
     def post(self, request, user_id):
-        # Валидируем данные
         serializer = CustomUserPostOrganizationsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        # Добавляем организации через сервис
         organization_ids = serializer.validated_data['organization_ids']
-        result = add_organizations_to_user(user_id, organization_ids)
 
-        # Возвращаем успешный или ошибочный ответ
-        if result["success"]:
-            return Response({"message": result["message"]}, status=status.HTTP_200_OK)
-        return Response({"error": result["message"]}, status=status.HTTP_400_BAD_REQUEST)
+        custom_user = add_organizations_to_user(user_id, organization_ids)
+
+        serializer = CustomUserGetSerializer(custom_user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CustomUsersViewSet(viewsets.ModelViewSet):
