@@ -1,7 +1,7 @@
 from .models import Organization, CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, LoginSerializer
 
 
 def register_custom_user(request_data) -> CustomUser:
@@ -10,15 +10,15 @@ def register_custom_user(request_data) -> CustomUser:
     custom_user.is_valid(raise_exception=True)
     return custom_user.save()
 
-def authenticate_user(data, serializer_class):
+def authenticate_user(request_data):
     """
     Аутентификация пользователя.
     Возвращает пользователя и токены.
     """
-    serializer = serializer_class(data=data)
-    serializer.is_valid(raise_exception=True)
-    user = serializer.validated_data['user']
-    refresh = RefreshToken.for_user(user)
+    custom_user = LoginSerializer(data=request_data)
+    custom_user.is_valid(raise_exception=True)
+    refresh = RefreshToken.for_user(custom_user.validated_data)
+
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),

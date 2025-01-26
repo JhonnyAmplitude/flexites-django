@@ -14,10 +14,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         }
 
 
-    def create(self, request_data) -> CustomUser:
-        avatar_data = request_data.pop('avatar', None)
+    def create(self, data) -> CustomUser:
+        avatar_data = data.pop('avatar', None)
         avatar = process_avatar(avatar_data) if avatar_data else None
-        return CustomUser.objects.create_user(**request_data, avatar=avatar)
+        return CustomUser.objects.create_user(**data, avatar=avatar)
 
 
 class LoginSerializer(serializers.Serializer):
@@ -31,15 +31,13 @@ class LoginSerializer(serializers.Serializer):
         if not email or not password:
             raise serializers.ValidationError("Email и пароль обязательны.")
 
-        user = authenticate(email=email, password=password)
-        if not user:
+        custom_user = authenticate(email=email, password=password)
+        if not custom_user:
             raise serializers.ValidationError("Неверные учетные данные.")
-
-        if not user.is_active:
+        if not custom_user.is_active:
             raise serializers.ValidationError("Этот аккаунт деактивирован.")
 
-        data['user'] = user
-        return data
+        return custom_user
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:

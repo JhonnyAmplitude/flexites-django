@@ -1,19 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
 
-def login_successful_response(tokens):
-    """
-    Формирует успешный ответ для логина.
-    Возвращает access и refresh токены.
-    """
-    return Response(
-        {
-            "refresh": tokens['refresh'],
-            "access": tokens['access'],
-        },
-        status=status.HTTP_200_OK,
-    )
-
 def organization_created_response(organization):
     """Формирует успешный ответ при создании организации."""
     return Response(

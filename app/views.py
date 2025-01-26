@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, viewsets
 
 from .models import CustomUser
-from .responses import organization_created_response, login_successful_response, \
+from .responses import organization_created_response, \
     success_response, error_response
 from .serializers import RegistrationSerializer, LoginSerializer, ProfileUpdateSerializer, OrganizationCreateSerializer, \
     OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
@@ -27,17 +27,11 @@ def register(request):
     }, status=status.HTTP_201_CREATED)
 
 
-class LoginView(APIView):
-    @extend_schema(
-        request=LoginSerializer,
-        responses={
-            200: LoginSerializer,
-            400: 'Некорректные данные для логина',
-        }
-    )
-    def post(self, request, *args, **kwargs):
-        tokens = authenticate_user(request.data, LoginSerializer)
-        return login_successful_response(tokens)
+@extend_schema(request=LoginSerializer)
+@api_view(['POST'])
+def login(request):
+    tokens = authenticate_user(request.data)
+    return Response(tokens, status=status.HTTP_200_OK)
 
 
 class OrganizationCreateView(APIView):

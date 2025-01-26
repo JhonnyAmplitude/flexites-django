@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import (
-    LoginView,
     ProfileUpdateView,
     OrganizationCreateView,
     OrganizationListView,
@@ -8,13 +7,14 @@ from .views import (
     UserOrganizationsView,
     GetAllOrganizationsWithUsersView,
     GetUsersAndTheirOrganizationsViewSet,
-    register
+    register,
+    login
 )
 
 
 urlpatterns = [
     path('register/', register, name='user-register'),
-    path('login/', LoginView.as_view(), name='login'),
+    path('login/', login, name='user-login'),
 
     path('organizations/', OrganizationListView.as_view(), name='organization-list'),
     path('organizations/create/', OrganizationCreateView.as_view(), name='organization-create'),
