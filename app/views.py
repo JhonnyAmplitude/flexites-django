@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions, viewsets
+from rest_framework import status, viewsets
 
 from .models import CustomUser
 from .responses import organization_created_response
-from .serializers import CustomUserGetSerializer, ProfileUpdateSerializer, LoginSerializer, OrganizationCreateSerializer, \
+from .serializers import CustomUserGetSerializer, LoginSerializer, OrganizationCreateSerializer, \
     OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
     OrganizationWithUsersSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -41,10 +41,8 @@ class CustomUserView(APIView):
         return Response(custom_user.data, status=status.HTTP_200_OK)
 
     def patch(self, request):
-        result = update_user_profile(request.user, request.data, ProfileUpdateSerializer)
-        if result["success"]:
-            return Response({"message": result["data"]}, status=status.HTTP_200_OK)
-        return Response({"error": result["errors"]}, status=status.HTTP_400_BAD_REQUEST)
+        updated_custom_user = update_user_profile(request.user, request.data)
+        return Response(updated_custom_user, status=status.HTTP_200_OK)
 
 
 class OrganizationCreateView(APIView):

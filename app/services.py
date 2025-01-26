@@ -1,7 +1,7 @@
 from .models import Organization, CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
-from .serializers import RegistrationSerializer, LoginSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, CustomUserPatchSerializer
 
 
 def register_custom_user(request_data) -> CustomUser:
@@ -18,6 +18,12 @@ def authenticate_user(request_data):
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
+
+def update_user_profile(custom_user, request_data):
+    updated_custom_user = CustomUserPatchSerializer(custom_user, data=request_data, partial=True)
+    updated_custom_user.is_valid(raise_exception=True)
+    updated_custom_user.save()
+    return updated_custom_user.data
 
 def create_organization(data, serializer_class):
     serializer = serializer_class(data=data)
@@ -44,13 +50,6 @@ def add_organizations_to_user(user_id, organization_ids):
 
 def get_all_organizations():
     return Organization.objects.all()
-
-def update_user_profile(user, data, serializer_class):
-    serializer = serializer_class(user, data=data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return {"success": True, "data": serializer.data}
-    return {"success": False, "errors": serializer.errors}
 
 def get_users_and_organizations_by_email(email):
     user = get_object_or_404(CustomUser, email=email)

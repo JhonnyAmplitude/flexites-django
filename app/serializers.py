@@ -7,7 +7,7 @@ from .utils import process_avatar
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['email', 'password', 'phone', 'avatar', 'first_name', 'last_name']
+        fields = ['email', 'password', 'phone', 'first_name', 'last_name', 'avatar']
         extra_kwargs = {
             'email': {'required': True},
             'password': {'write_only': True},
@@ -40,7 +40,6 @@ class LoginSerializer(serializers.Serializer):
         return custom_user
 
 
-# TODO: rename
 class OrganizationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
@@ -55,19 +54,20 @@ class CustomUserGetSerializer(serializers.ModelSerializer):
         fields = ['email', 'phone', 'first_name', 'last_name', 'avatar', 'organizations']
 
 
-class ProfileUpdateSerializer(serializers.ModelSerializer):
+class CustomUserPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['email', 'phone', 'avatar', 'first_name', 'last_name']
+        fields = ['email', 'phone', 'first_name', 'last_name', 'avatar']
         extra_kwargs = {
             'email': {'read_only': True},  # Email нельзя редактировать
         }
 
-    def update(self, instance, validated_data):
-        avatar = validated_data.get('avatar')
-        if avatar:
-            instance.avatar.delete(save=False)  # Удаление старого аватара, если есть
-        return super().update(instance, validated_data)
+    def update(self, custom_user, data) -> CustomUser:
+        if "avatar" in data:
+            avatar = data["avatar"]
+            data["avatar"] = process_avatar(avatar) if avatar else None
+
+        return super().update(custom_user, data)
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
