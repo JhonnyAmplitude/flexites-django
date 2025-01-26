@@ -39,6 +39,22 @@ class LoginSerializer(serializers.Serializer):
 
         return custom_user
 
+
+# TODO: rename
+class OrganizationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ['id', 'name', 'short_description']
+
+
+class CustomUserGetSerializer(serializers.ModelSerializer):
+    organizations = OrganizationCreateSerializer(many=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'phone', 'first_name', 'last_name', 'avatar', 'organizations']
+
+
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -52,12 +68,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         if avatar:
             instance.avatar.delete(save=False)  # Удаление старого аватара, если есть
         return super().update(instance, validated_data)
-
-
-class OrganizationCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Organization
-        fields = ['id', 'name', 'short_description']
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:

@@ -5,7 +5,7 @@ from rest_framework import status, permissions, viewsets
 from .models import CustomUser
 from .responses import organization_created_response, \
     success_response, error_response
-from .serializers import RegistrationSerializer, LoginSerializer, ProfileUpdateSerializer, OrganizationCreateSerializer, \
+from .serializers import CustomUserGetSerializer, ProfileUpdateSerializer, LoginSerializer, OrganizationCreateSerializer, \
     OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
     OrganizationWithUsersSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +15,7 @@ from rest_framework.decorators import api_view
 
 
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
-    get_all_organizations, get_user_profile, update_user_profile, get_users_and_organizations_by_email, \
+    get_all_organizations, update_user_profile, get_users_and_organizations_by_email, \
     get_organizations_for_user, get_all_organizations_with_users
 
 @api_view(['POST'])
@@ -34,6 +34,20 @@ def login(request):
     return Response(tokens, status=status.HTTP_200_OK)
 
 
+class CustomUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        custom_user = CustomUserGetSerializer(request.user)
+        return Response(custom_user.data, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        result = update_user_profile(request.user, request.data, ProfileUpdateSerializer)
+        if result["success"]:
+            return success_response(result["data"])
+        return error_response(result["errors"])
+
+
 class OrganizationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -43,7 +57,7 @@ class OrganizationCreateView(APIView):
 
 
 class AddOrganizationsToUserView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id):
         # Валидируем данные
@@ -72,23 +86,6 @@ class OrganizationListView(APIView):
 
         # Возвращаем успешный ответ
         return success_response(serializer.data)
-
-
-class ProfileUpdateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        """Получение текущего профиля."""
-        user_profile = get_user_profile(request.user)
-        serializer = ProfileUpdateSerializer(user_profile)
-        return success_response(serializer.data)
-
-    def patch(self, request):
-        """Обновление профиля."""
-        result = update_user_profile(request.user, request.data, ProfileUpdateSerializer)
-        if result["success"]:
-            return success_response(result["data"])
-        return error_response(result["errors"])
 
 class GetUsersAndTheirOrganizationsViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().prefetch_related('organizations')

@@ -56,10 +56,6 @@ def get_all_organizations():
     """Получает все организации."""
     return Organization.objects.all()
 
-def get_user_profile(user):
-    """Возвращает профиль текущего пользователя."""
-    return user
-
 def update_user_profile(user, data, serializer_class):
     """Обновляет профиль пользователя."""
     serializer = serializer_class(user, data=data, partial=True)
