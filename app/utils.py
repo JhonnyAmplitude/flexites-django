@@ -25,4 +25,4 @@ def process_avatar(avatar):
     file_path = os.path.join(AVATARS_PATH, filename)
     default_storage.save(file_path, temp_file)
 
-    return filename
+    return file_path
