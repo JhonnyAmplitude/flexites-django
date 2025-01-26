@@ -3,8 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, viewsets
 
 from .models import CustomUser
-from .responses import organization_created_response, \
-    success_response, error_response
+from .responses import organization_created_response
 from .serializers import CustomUserGetSerializer, ProfileUpdateSerializer, LoginSerializer, OrganizationCreateSerializer, \
     OrganizationSerializer, CustomUserSerializer, AddOrganizationSerializer, \
     OrganizationWithUsersSerializer
@@ -44,8 +43,8 @@ class CustomUserView(APIView):
     def patch(self, request):
         result = update_user_profile(request.user, request.data, ProfileUpdateSerializer)
         if result["success"]:
-            return success_response(result["data"])
-        return error_response(result["errors"])
+            return Response({"message": result["data"]}, status=status.HTTP_200_OK)
+        return Response({"error": result["errors"]}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrganizationCreateView(APIView):
@@ -70,8 +69,8 @@ class AddOrganizationsToUserView(APIView):
 
         # Возвращаем успешный или ошибочный ответ
         if result["success"]:
-            return success_response(result["message"])
-        return error_response(result["message"])
+            return Response({"message": result["message"]}, status=status.HTTP_200_OK)
+        return Response({"error": result["message"]}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrganizationListView(APIView):
@@ -85,7 +84,7 @@ class OrganizationListView(APIView):
         serializer = OrganizationSerializer(organizations, many=True)
 
         # Возвращаем успешный ответ
-        return success_response(serializer.data)
+        return Response({"message": serializer.data}, status=status.HTTP_200_OK)
 
 class GetUsersAndTheirOrganizationsViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().prefetch_related('organizations')

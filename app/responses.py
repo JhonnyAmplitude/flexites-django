@@ -12,19 +12,6 @@ def organization_created_response(organization):
         status=status.HTTP_201_CREATED,
     )
 
-def success_response(message):
-    """
-    Формирует успешный ответ с сообщением.
-    """
-    return Response({"message": message}, status=status.HTTP_200_OK)
-
-def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
-    """
-    Формирует ошибочный ответ с сообщением.
-    """
-    return Response({"error": message}, status=status_code)
-
-
 def organizations_list_success_response(data, status_code=status.HTTP_200_OK):
     """
     Формирует успешный ответ с переданными данными.

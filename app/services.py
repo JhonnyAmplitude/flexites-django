@@ -5,16 +5,11 @@ from .serializers import RegistrationSerializer, LoginSerializer
 
 
 def register_custom_user(request_data) -> CustomUser:
-    """Регистрация пользователя"""
     custom_user = RegistrationSerializer(data=request_data)
     custom_user.is_valid(raise_exception=True)
     return custom_user.save()
 
 def authenticate_user(request_data):
-    """
-    Аутентификация пользователя.
-    Возвращает пользователя и токены.
-    """
     custom_user = LoginSerializer(data=request_data)
     custom_user.is_valid(raise_exception=True)
     refresh = RefreshToken.for_user(custom_user.validated_data)
@@ -25,16 +20,11 @@ def authenticate_user(request_data):
     }
 
 def create_organization(data, serializer_class):
-    """Создает организацию"""
     serializer = serializer_class(data=data)
     serializer.is_valid(raise_exception=True)
     return serializer.save()
 
 def add_organizations_to_user(user_id, organization_ids):
-    """
-    Добавляет указанные организации пользователю, если они ещё не добавлены.
-    Возвращает сообщение об успехе или ошибке.
-    """
     # Получаем пользователя или выбрасываем 404
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -53,11 +43,9 @@ def add_organizations_to_user(user_id, organization_ids):
     return {"success": True, "message": "Организации успешно добавлены"}
 
 def get_all_organizations():
-    """Получает все организации."""
     return Organization.objects.all()
 
 def update_user_profile(user, data, serializer_class):
-    """Обновляет профиль пользователя."""
     serializer = serializer_class(user, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
@@ -65,16 +53,13 @@ def update_user_profile(user, data, serializer_class):
     return {"success": False, "errors": serializer.errors}
 
 def get_users_and_organizations_by_email(email):
-    """Получает пользователей по email и его организации."""
     user = get_object_or_404(CustomUser, email=email)
     organizations = user.organizations.all()
     return user, organizations
 
 def get_organizations_for_user(user_id):
-    """Получает все организации для конкретного пользователя по его ID."""
     user = get_object_or_404(CustomUser, id=user_id)
     return user.organizations.all()
 
 def get_all_organizations_with_users():
-    """Получает все организации с прикрепленными пользователями."""
     return Organization.objects.all().prefetch_related('users')
