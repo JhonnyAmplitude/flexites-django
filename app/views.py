@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 
-from .models import CustomUser
+from .models import CustomUser, Organization
 from .responses import organization_created_response
 from .serializers import CustomUserGetSerializer, LoginSerializer, \
     OrganizationSerializer, CustomUserSerializer, CustomUserPostOrganizationsSerializer, \
@@ -12,7 +12,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
-    get_all_organizations, update_user_profile, \
+    update_user_profile, \
     get_user_by_id, get_all_organizations_with_users
 
 @api_view(['POST'])
@@ -68,27 +68,17 @@ class CustomUsersViewSet(viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
 
 
+class OrganizationsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+
 class OrganizationCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         organization = create_organization(request.data, OrganizationSerializer)
         return organization_created_response(organization)
-
-
-class OrganizationListView(APIView):
-    """Получение всех организаций"""
-
-    def get(self, request, *args, **kwargs):
-        # Получаем все организации через сервис
-        organizations = get_all_organizations()
-
-        # Сериализуем данные
-        serializer = OrganizationSerializer(organizations, many=True)
-
-        # Возвращаем успешный ответ
-        return Response({"message": serializer.data}, status=status.HTTP_200_OK)
-
 
 class GetAllOrganizationsWithUsersView(APIView):
     """Получение всех организаций с прикрепленными пользователями."""

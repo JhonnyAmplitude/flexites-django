@@ -47,8 +47,5 @@ def add_organizations_to_user(user_id, organization_ids):
 
     return custom_user
 
-def get_all_organizations():
-    return Organization.objects.all()
-
 def get_all_organizations_with_users():
     return Organization.objects.all().prefetch_related('users')
