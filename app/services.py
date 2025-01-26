@@ -25,6 +25,10 @@ def update_user_profile(custom_user, request_data):
     updated_custom_user.save()
     return updated_custom_user.data
 
+def get_organizations_for_user(user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    return user.organizations.all()
+
 def create_organization(data, serializer_class):
     serializer = serializer_class(data=data)
     serializer.is_valid(raise_exception=True)
@@ -50,10 +54,6 @@ def add_organizations_to_user(user_id, organization_ids):
 
 def get_all_organizations():
     return Organization.objects.all()
-
-def get_organizations_for_user(user_id):
-    user = get_object_or_404(CustomUser, id=user_id)
-    return user.organizations.all()
 
 def get_all_organizations_with_users():
     return Organization.objects.all().prefetch_related('users')

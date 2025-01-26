@@ -11,8 +11,6 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 
-
-
 from .services import create_organization, register_custom_user, authenticate_user, add_organizations_to_user, \
     get_all_organizations, update_user_profile, \
     get_organizations_for_user, get_all_organizations_with_users
@@ -45,22 +43,13 @@ class CustomUserView(APIView):
         return Response(updated_custom_user, status=status.HTTP_200_OK)
 
 
-class CustomUsersWithOrganizationsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = CustomUser.objects.all().prefetch_related('organizations')
-    serializer_class = CustomUserSerializer
-
-
-class OrganizationCreateView(APIView):
+class CustomUserWithOrganizationsById(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        organization = create_organization(request.data, OrganizationCreateSerializer)
-        return organization_created_response(organization)
-
-
-class AddOrganizationsToUserView(APIView):
-    permission_classes = [IsAuthenticated]
+    def get(self, _, user_id):
+        organizations = get_organizations_for_user(user_id)
+        serializer = OrganizationSerializer(organizations, many=True)
+        return Response(serializer.data)
 
     def post(self, request, user_id):
         # Валидируем данные
@@ -77,6 +66,20 @@ class AddOrganizationsToUserView(APIView):
         return Response({"error": result["message"]}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CustomUsersWithOrganizationsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all().prefetch_related('organizations')
+    serializer_class = CustomUserSerializer
+
+
+class OrganizationCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        organization = create_organization(request.data, OrganizationCreateSerializer)
+        return organization_created_response(organization)
+
+
 class OrganizationListView(APIView):
     """Получение всех организаций"""
 
@@ -89,19 +92,6 @@ class OrganizationListView(APIView):
 
         # Возвращаем успешный ответ
         return Response({"message": serializer.data}, status=status.HTTP_200_OK)
-
-
-class UserOrganizationsView(APIView):
-    """Получение организаций конкретного пользователя по ID."""
-
-    def get(self, request, user_id):
-        """Получение организаций для пользователя по его ID."""
-        organizations = get_organizations_for_user(user_id)
-
-        # Сериализуем данные
-        serializer = OrganizationSerializer(organizations, many=True)
-
-        return Response(serializer.data)
 
 
 class GetAllOrganizationsWithUsersView(APIView):
