@@ -42,10 +42,7 @@ def register(request):
 @extend_schema(
         summary="Логин",
         request=LoginRequestSerializer,
-        responses={
-        200: LoginResponseSerializer,
-    },
-    description="Авторизация пользователя и выдача токенов доступа"
+        responses=LoginResponseSerializer
 )
 @api_view(['POST'])
 def login(request):
