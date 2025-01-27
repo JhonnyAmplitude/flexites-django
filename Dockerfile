@@ -6,17 +6,17 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Установка рабочей директории
 WORKDIR /app
 
-# Копирование проекта
-COPY . /app
+# Копируем файлы проекта в контейнер
+COPY ./app /app
 
-# Установка прав на запись для базы данных SQLite
-RUN chmod -R 777 /app
-
-# Установка зависимостей Python
+# Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Команда по умолчанию для выполнения миграции и запуска сервера
-CMD ["sh", "-c", "python manage.py migrate || echo 'Migration failed' && python manage.py runserver 0.0.0.0:8000"]
+# Копируем и делаем скрипт entrypoint исполняемым
+COPY ./app/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Указываем скрипт в качестве команды запуска контейнера
+CMD ["/app/entrypoint.sh"]
