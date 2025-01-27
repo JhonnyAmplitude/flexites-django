@@ -1,25 +1,22 @@
 FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    libjpeg-dev \
-    zlib1g-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    python3-dev
-# Указываем рабочую директорию
 WORKDIR /app
 
-# Копируем только файл requirements.txt в контейнер
-COPY ./app/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/
 
-# Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем и делаем скрипт entrypoint исполняемым
-COPY ./app/entrypoint.sh /app/entrypoint.sh
+COPY . /app/
+
+# Копируем скрипт entrypoint
+COPY entrypoint.sh /app/
+
+# Делаем скрипт исполняемым
 RUN chmod +x /app/entrypoint.sh
 
-# Указываем скрипт в качестве команды запуска контейнера
-CMD ["/app/entrypoint.sh"]
+EXPOSE 8000
+
+# Указываем entrypoint
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
