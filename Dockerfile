@@ -1,18 +1,21 @@
 FROM python:3.11-slim
 
+# Установка зависимостей для работы с Python
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Установка рабочей директории
 WORKDIR /app
 
-COPY requirements.txt /app/
+# Копирование проекта
+COPY . /app
 
+# Установка зависимостей Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY manage.py /app/
+# Команда по умолчанию для выполнения миграции и запуска сервера
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
 
-RUN python manage.py migrate
-
-COPY . /app/
-
-EXPOSE 8000
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
