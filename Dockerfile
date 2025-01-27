@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y \
 # Указываем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы проекта в контейнер
-COPY ./app /app
+# Копируем только файл requirements.txt в контейнер
+COPY ./app/requirements.txt /app/requirements.txt
 
 # Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
