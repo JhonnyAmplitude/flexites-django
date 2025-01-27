@@ -6,6 +6,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Указываем рабочую директорию
 WORKDIR /app
 
 # Копируем файлы проекта в контейнер
