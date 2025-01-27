@@ -6,11 +6,9 @@ COPY requirements.txt /app/
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app/
-
 RUN python manage.py migrate
 
-COPY db.sqlite3 /app/
+COPY . /app/
 
 EXPOSE 8000
 
