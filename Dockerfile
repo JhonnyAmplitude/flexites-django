@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN python manage.py migrate
 
-COPY . .
+COPY . /app
 
 # Выполнение миграций перед запуском приложения
 
