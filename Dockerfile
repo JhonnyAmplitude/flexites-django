@@ -2,21 +2,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Копируем весь проект
+COPY . .
 
-COPY . /app/
+# Выполнение миграций перед запуском приложения
+RUN python manage.py migrate
 
-# Копируем скрипт entrypoint
-COPY entrypoint.sh /app/
-
-# Делаем скрипт исполняемым
-RUN chmod +x /app/entrypoint.sh
-
-EXPOSE 8000
-
-# Указываем entrypoint
-ENTRYPOINT ["sh", "/app/entrypoint.sh"]
-
+# Запуск Django сервера (если используете runserver)
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
