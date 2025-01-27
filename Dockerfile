@@ -9,7 +9,5 @@ RUN python manage.py migrate
 
 COPY . /app
 
-# Выполнение миграций перед запуском приложения
-
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
