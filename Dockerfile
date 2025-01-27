@@ -12,10 +12,11 @@ WORKDIR /app
 # Копирование проекта
 COPY . /app
 
+# Установка прав на запись для базы данных SQLite
+RUN chmod -R 777 /app
+
 # Установка зависимостей Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Команда по умолчанию для выполнения миграции и запуска сервера
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
-
-
+CMD ["sh", "-c", "python manage.py migrate || echo 'Migration failed' && python manage.py runserver 0.0.0.0:8000"]
