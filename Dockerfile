@@ -9,6 +9,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Выполнение миграций перед запуском приложения
+RUN python manage.py makemigrations
 RUN python manage.py migrate
 
 # Запуск Django сервера (если используете runserver)
